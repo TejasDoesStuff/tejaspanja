@@ -39,7 +39,8 @@ export default function MagneticButton({ children, className = "", onClick }: Ma
       onMouseLeave={handleMouseLeave}
       onMouseEnter={() => setIsHovered(true)}
       style={{ 
-        transition: "transform 0.2s ease-out, border-radius 0.2s ease-out" 
+        transition: "transform 0.2s ease-out, border-radius 0.2s ease-out",
+        cursor: "pointer",
       }}
     >
       {children}
