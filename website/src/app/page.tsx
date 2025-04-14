@@ -1,14 +1,33 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 import Marquee from "react-fast-marquee";
 import StickyButton from "./components/StickyButton";
 import Link from "next/link";
 import Image from "next/image";
+import confetti from "canvas-confetti";
 
 export default function Home() {
-  const [tileCount, setTileCount] = useState(20); // Default starting value
+  const smileyRef = useRef<HTMLImageElement>(null);
+
+  const triggerConfetti = () => {
+    if (!smileyRef.current) return;
+
+    const rect = smileyRef.current.getBoundingClientRect();
+
+    confetti({
+      particleCount: 300,
+      spread: 100,
+      angle: 180,
+      origin: {
+        x: (rect.left + rect.width / 2) / window.innerWidth,
+        y: (rect.top + rect.height / 2) / window.innerHeight,
+      },
+    });
+  };
+
+  const [tileCount, setTileCount] = useState(20);
 
   useEffect(() => {
     function calculateTilesNeeded() {
@@ -58,7 +77,9 @@ export default function Home() {
               alt="Melting Smiley"
               width={0}
               height={0}
-              className="w-28 h-28 dark:grayscale dark:hover:grayscale-0 transition-all"
+              className="w-28 h-28 dark:grayscale dark:hover:grayscale-0 transition-all cursor-pointer"
+              onClick={triggerConfetti}
+              ref={smileyRef}
             />
           </h1>
         </div>
