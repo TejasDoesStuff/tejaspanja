@@ -1,0 +1,134 @@
+"use client";
+
+import { useState, useEffect } from "react";
+
+import Marquee from "react-fast-marquee";
+import StickyButton from "./components/StickyButton";
+import Link from "next/link";
+import MeltingSmiley from "./melting-smiley.svg";
+
+export default function Home() {
+  const [tileCount, setTileCount] = useState(20); // Default starting value
+
+  useEffect(() => {
+    function calculateTilesNeeded() {
+      const viewportWidth = window.innerWidth + 80;
+      const viewportHeight = window.innerHeight + 80;
+
+      let columns = 4;
+      if (window.innerWidth >= 1280) columns = 12;
+      else if (window.innerWidth >= 1024) columns = 10;
+      else if (window.innerWidth >= 768) columns = 8;
+      else if (window.innerWidth >= 640) columns = 6;
+      const tileWidth = viewportWidth / columns;
+      const rowsNeeded = Math.ceil(viewportHeight / tileWidth);
+      setTileCount(columns * rowsNeeded);
+    }
+
+    calculateTilesNeeded();
+    window.addEventListener("resize", calculateTilesNeeded);
+    return () => window.removeEventListener("resize", calculateTilesNeeded);
+  }, []);
+
+  return (
+    <div className="h-screen w-screen overflow-hidden p-10 bg-[#F1FAEE] dark:bg-black">
+      <div className="absolute inset-0 z-0 overflow-hidden">
+        <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 pointer-events-none">
+          {Array.from({ length: tileCount }).map((_, i) => (
+            <div
+              key={i}
+              className="border border-black dark:border-white opacity-50 aspect-square"
+            />
+          ))}
+        </div>
+      </div>
+      <div className="border-black dark:border-white border-4 h-full w-full flex flex-col backdrop-blur-3xl">
+        <div className="flex flex-col w-full h-auto">
+          <h1 className="text-9xl font-bold pl-2 flex items-center justify-between gap-4">
+            TEJAS PANJA{" "}
+            <img
+              src="/melting-smiley.svg"
+              alt="Melting Smiley"
+              className="w-28 h-28"
+            />
+          </h1>
+        </div>
+        <div>
+          <Marquee
+            className="text-xl uppercase bg-black dark:bg-white text-white dark:text-black"
+            speed={35}
+            autoFill={true}
+          >
+            / Coding // Videography // Music // Graphic Design /
+          </Marquee>
+        </div>
+        <div className="p-4">
+          <div className="text-4xl flex items-center">
+            <h2 className="text-4xl w-1/4">i do cool things</h2>
+            <div className="border-black border-2 w-full h-10 grid grid-cols-10">
+              {Array.from({ length: 10 }).map((_, i) => (
+              <div
+                key={i}
+                className="border border-black dark:border-white"
+              />
+            ))}
+            </div>
+          </div>
+          <div className="flex flex-row gap-6 mt-2">
+            <p className="text-justify w-1/4">
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ut,
+              laudantium consequuntur dolore a, voluptatibus aspernatur eligendi
+              enim quod suscipit maxime culpa rerum. Deserunt animi repudiandae,
+              tenetur asperiores quae nesciunt laboriosam.
+            </p>
+            <p className="text-justify w-1/4">
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ut,
+              laudantium consequuntur dolore a, voluptatibus aspernatur eligendi
+              enim quod suscipit maxime culpa rerum. Deserunt animi repudiandae,
+              tenetur asperiores quae nesciunt laboriosam.
+            </p>
+            <p className="text-justify w-1/4">
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ut,
+              laudantium consequuntur dolore a, voluptatibus aspernatur eligendi
+              enim quod suscipit maxime culpa rerum. Deserunt animi repudiandae,
+              tenetur asperiores quae nesciunt laboriosam.
+            </p>
+            <p className="text-justify w-1/4">
+              Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ut,
+              laudantium consequuntur dolore a, voluptatibus aspernatur eligendi
+              enim quod suscipit maxime culpa rerum. Deserunt animi repudiandae,
+              tenetur asperiores quae nesciunt laboriosam.
+            </p>
+          </div>
+        </div>
+        <div className="w-full h-full flex flex-col">
+          <div className="grid grid-cols-5 grid-rows-5 w-full flex-grow">
+            <div className="col-span-3 row-span-3 dark:border-white border-black border-2 border-l-0 flex justify-center items-center">
+              <StickyButton className="bg-pink-500 text-white w-full h-full flex justify-center items-center text-5xl font-bold hover:z-50">
+                PROJECTS
+              </StickyButton>
+            </div>
+
+            <div className="col-span-2 row-span-5 dark:border-white border-black border-2 border-r-0 border-b-0 flex justify-center items-center">
+              <StickyButton className="bg-blue-500 text-white w-full h-full flex justify-center items-center text-5xl font-bold hover:z-50">
+                CONTACT
+              </StickyButton>
+            </div>
+
+            <div className="col-start-2 col-span-2 row-span-2 dark:border-white border-black border-2 border-b-0 flex justify-center items-center">
+              <StickyButton className="bg-yellow-500 text-white w-full h-full flex justify-center items-center text-5xl font-bold hover:z-50">
+                ABOUT
+              </StickyButton>
+            </div>
+
+            <div className="col-span-1 row-start-4 row-span-2 dark:border-white border-black border-2 border-l-0 border-b-0 flex justify-center items-center">
+              <StickyButton className="bg-red-500 text-white w-full h-full flex justify-center items-center text-5xl font-bold hover:z-50">
+                BLOG
+              </StickyButton>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -7,7 +7,11 @@ interface MagneticButtonProps {
 }
 
 export default function MagneticButton({ children, className = "", onClick }: MagneticButtonProps) {
+  const [isHovered, setIsHovered] = useState(false);
+  
   const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!isHovered) setIsHovered(true);
+    
     const button = e.currentTarget;
     const rect = button.getBoundingClientRect();
 
@@ -21,16 +25,22 @@ export default function MagneticButton({ children, className = "", onClick }: Ma
   };
 
   const handleMouseLeave = (e: React.MouseEvent<HTMLButtonElement>) => {
+    setIsHovered(false);
     e.currentTarget.style.transform = "translate(0, 0)";
   };
 
+  const buttonClasses = `${className} ${isHovered ? 'rounded-[0%]' : 'rounded-[100%]'}`.trim();
+
   return (
     <button
-      className={className}
+      className={buttonClasses}
       onClick={onClick}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      style={{ transition: "transform 0.2s ease-out" }}
+      onMouseEnter={() => setIsHovered(true)}
+      style={{ 
+        transition: "transform 0.2s ease-out, border-radius 0.2s ease-out" 
+      }}
     >
       {children}
     </button>
