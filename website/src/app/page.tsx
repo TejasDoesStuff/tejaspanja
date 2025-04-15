@@ -61,14 +61,15 @@ export default function Home() {
           ))}
         </div>
       </div>
-      <div
-        className="border-black dark:border-white border-4 h-full w-full flex flex-col backdrop-blur-3xl shadow-2xl"
-        style={{
-          backgroundImage: "url('/03.png')",
-          backgroundRepeat: "repeat",
-          backgroundSize: "1000px",
-        }}
-      >
+      <div className="border-black dark:border-white border-4 h-full w-full flex flex-col backdrop-blur-3xl shadow-2xl">
+        <div
+          className="w-full h-full inset-0 absolute pointer-events-none"
+          style={{
+            backgroundImage: "url('/03.png')",
+            backgroundRepeat: "repeat",
+            backgroundSize: "1000px",
+          }}
+        />
         <div className="flex flex-col w-full h-auto">
           <h1 className="text-9xl font-bold pl-2 flex items-center justify-between gap-4">
             TEJAS PANJA
@@ -125,22 +126,24 @@ export default function Home() {
         <div className="w-full h-full flex flex-col">
           <div className="grid grid-cols-5 grid-rows-5 w-full flex-grow">
             <div className="col-span-3 row-span-3 dark:border-white border-black border-2 border-t-4 border-l-0 flex justify-center items-center">
-              <StickyButton className="bg-pink-400 dark:hover:bg-pink-500 dark:bg-black dark:border-white dark:border-4 text-white w-full h-full flex justify-center items-center text-5xl font-bold hover:z-50 overflow-hidden">
-                <div
-                  className="w-full h-full flex justify-center items-center"
-                  style={{
-                    backgroundImage: "url('/03.png')",
-                    backgroundRepeat: "repeat",
-                    backgroundSize: "1000px",
-                  }}
-                >
-                  PROJECTS
-                </div>
-              </StickyButton>
+              <Link href="/projects" className="w-full h-full">
+                <StickyButton className="bg-pink-400 dark:hover:bg-pink-400 dark:bg-black dark:border-white dark:border-4 text-white w-full h-full flex justify-center items-center text-5xl hover:z-50 font-bold overflow-hidden">
+                  <div
+                    className="w-full h-full flex justify-center items-center"
+                    style={{
+                      backgroundImage: "url('/03.png')",
+                      backgroundRepeat: "repeat",
+                      backgroundSize: "1000px",
+                    }}
+                  >
+                    PROJECTS
+                  </div>
+                </StickyButton>
+              </Link>
             </div>
 
             <div className="col-span-2 row-span-5 dark:border-white border-black border-2 border-t-4 border-r-0 border-b-0 flex justify-center items-center">
-              <StickyButton className="bg-blue-500 dark:border-white dark:border-4 dark:bg-white dark:text-black text-white w-full h-full flex justify-center items-center text-5xl font-bold hover:z-50 relative overflow-hidden">
+              <StickyButton className="bg-blue-400 dark:border-white dark:border-4 dark:bg-white dark:text-black text-white w-full h-full flex justify-center items-center text-5xl font-bold hover:z-50 relative overflow-hidden">
                 <Image
                   src="/headshot.png"
                   alt="Headshot"
