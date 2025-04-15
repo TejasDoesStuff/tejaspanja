@@ -193,10 +193,7 @@ export default function Home() {
           </div>
 
           <div className="border-4 border-black dark:border-white row-span-4 col-span-1 relative overflow-hidden">
-            <div className="w-full h-full bg-black text-white p-2 text-sm font-bold tracking-tight leading-tight uppercase overflow-hidden break-words">
-              BRUTALIST WEB DESIGN IS HONEST. RAW. FUNCTION OVER FORM. CONTENT
-              FIRST. ANTI-TEMPLATE. ANTI-TREND. THE GRID IS GOD.
-            </div>
+
           </div>
 
           <div className="border-4 border-black dark:border-white row-span-4 col-span-3">
