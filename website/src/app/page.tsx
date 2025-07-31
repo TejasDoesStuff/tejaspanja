@@ -15,18 +15,29 @@ import {
 } from "@react-three/postprocessing";
 import Image from "next/image";
 import Link from "next/link";
-import { useSpring, animated } from "@react-spring/three";
-import Home from "./pages/home/page";
-// import { Projects } from "./pages/projects/page";
+import { useSpring } from "@react-spring/three";
+import Home from "./pages/home";
+import Projects from "./pages/projects";
 
-function Model({ isZoomed, setIsZoomed }) {
+function Model({ isZoomed, setIsZoomed, currentPage, setCurrentPage }) {
   const { scene } = useGLTF("/tv.glb");
   const group = useRef();
 
   const handleClick = (e) => {
     e.stopPropagation();
+    e.nativeEvent.preventDefault();
     if (!isZoomed) {
       setIsZoomed(true);
+    }
+  };
+
+  const renderPage = () => {
+    switch(currentPage) {
+      case 'projects':
+        return <Projects setCurrentPage={setCurrentPage} />;
+      case 'home':
+      default:
+        return <Home setCurrentPage={setCurrentPage} />;
     }
   };
 
@@ -40,8 +51,7 @@ function Model({ isZoomed, setIsZoomed }) {
           rotation={[Math.PI, Math.PI, Math.PI]}
           scale={0.09}
         >
-          {/* <Home /> */}
-          <iframe src="https://www.example.com" title="website" height="150" width="240"></iframe>
+          {renderPage()}
         </Html>
       )}
     </group>
@@ -68,7 +78,7 @@ function ParallaxEffect({ children, isZoomed }) {
     config: {
       mass: 1,
       tension: 180,
-      friction: 30,
+      friction: 30, 
     },
   });
 
@@ -103,6 +113,7 @@ function ParallaxEffect({ children, isZoomed }) {
 
 function App() {
   const [isZoomed, setIsZoomed] = useState(false);
+  const [currentPage, setCurrentPage] = useState('home');
 
   useEffect(() => {
     const style = document.createElement("style");
@@ -160,7 +171,12 @@ function App() {
           <Bloom intensity={0.1} luminanceThreshold={0.2} />
           <ParallaxEffect isZoomed={isZoomed}>
             <Stage environment={null} adjustCamera={false}>
-              <Model isZoomed={isZoomed} setIsZoomed={setIsZoomed} />
+              <Model 
+                isZoomed={isZoomed} 
+                setIsZoomed={setIsZoomed}
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+              />
             </Stage>
           </ParallaxEffect>
         </EffectComposer>

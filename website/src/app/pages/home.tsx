@@ -1,6 +1,6 @@
 import Image from "next/image"
 
-export default function Home() {
+export default function Home({ setCurrentPage }) {
   return (
     <div
       onClick={(e) => e.stopPropagation()}
@@ -23,19 +23,31 @@ export default function Home() {
         <h2 className="text-sm">hi</h2>
       </div>
       <div className="p-2 mb-2 flex justify-around w-full h-full items-center">
-        <div className="flex flex-col items-center hover:scale-110 transition-all duration-300 folder-item">
+        <div 
+          className="flex flex-col items-center hover:scale-110 transition-all duration-300 folder-item cursor-pointer"
+          onClick={() => setCurrentPage('projects')}
+        >
           <Image src="/folder.svg" width={40} height={40} alt="Projects" />
           <span className="folder-label text-sm">Projects</span>
         </div>
-        <div className="flex flex-col items-center m-1 hover:scale-110 transition-all duration-100 folder-item">
+        <div 
+          className="flex flex-col items-center m-1 hover:scale-110 transition-all duration-100 folder-item cursor-pointer"
+          onClick={() => setCurrentPage('about')}
+        >
           <Image src="/folder.svg" width={40} height={40} alt="About" />
           <span className="folder-label text-sm">About</span>
         </div>
-        <div className="flex flex-col items-center m-1 hover:scale-110 transition-all duration-100 folder-item">
+        <div 
+          className="flex flex-col items-center m-1 hover:scale-110 transition-all duration-100 folder-item cursor-pointer"
+          onClick={() => setCurrentPage('skills')}
+        >
           <Image src="/folder.svg" width={40} height={40} alt="Skills" />
           <span className="folder-label text-sm">Skills</span>
         </div>
-        <div className="flex flex-col items-center m-1 hover:scale-110 transition-all duration-100 folder-item">
+        <div 
+          className="flex flex-col items-center m-1 hover:scale-110 transition-all duration-100 folder-item cursor-pointer"
+          onClick={() => setCurrentPage('contact')}
+        >
           <Image src="/folder.svg" width={40} height={40} alt="Contact" />
           <span className="folder-label text-sm">Contact</span>
         </div>
