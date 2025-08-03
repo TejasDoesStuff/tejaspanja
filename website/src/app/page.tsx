@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useSpring } from "@react-spring/three";
 import Home from "./pages/home";
 import Projects from "./pages/projects";
+import CodeProjects from "./pages/codeProjects";
 
 function Model({ isZoomed, setIsZoomed, currentPage, setCurrentPage }) {
   const { scene } = useGLTF("/tv.glb");
@@ -35,6 +36,8 @@ function Model({ isZoomed, setIsZoomed, currentPage, setCurrentPage }) {
     switch(currentPage) {
       case 'projects':
         return <Projects setCurrentPage={setCurrentPage} />;
+      case 'code':
+        return <CodeProjects setCurrentPage={setCurrentPage} />;
       case 'home':
       default:
         return <Home setCurrentPage={setCurrentPage} />;
@@ -170,7 +173,7 @@ function App() {
           <Vignette offset={0.5} darkness={0.3} eskil={false} />
           <Bloom intensity={0.1} luminanceThreshold={0.2} />
           <ParallaxEffect isZoomed={isZoomed}>
-            <Stage environment={null} adjustCamera={false}>
+            <Stage environment={null}>
               <Model 
                 isZoomed={isZoomed} 
                 setIsZoomed={setIsZoomed}

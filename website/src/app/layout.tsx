@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Tejas Panja",
-  description: "Tejas Panja's personal website",
+  description: "Tejas Panja",
 };
 
 export default function RootLayout({
