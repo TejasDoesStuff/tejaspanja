@@ -5,6 +5,7 @@ import { useState } from "react";
 export default function projectCard({
   title,
   date,
+  category,
   description,
   link,
   gh,
@@ -57,7 +58,7 @@ export default function projectCard({
           )}
         </div>
       </div>
-      <p className="text-[.50rem]">{date}</p>
+      <p className="text-[.50rem]">{date} • {category}</p>
 
       <div 
         className={`overflow-hidden transition-all duration-300 ease-in-out ${

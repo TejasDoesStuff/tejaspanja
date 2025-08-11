@@ -40,7 +40,7 @@ export default function Projects({ setCurrentPage }) {
         </div>
         <div
           className="flex flex-col items-center hover:scale-110 transition-all duration-300 folder-item cursor-pointer"
-          onClick={() => setCurrentPage("code")}
+          onClick={() => setCurrentPage("graphicdesign")}
         >
           <Image src="/document.svg" width={40} height={40} alt="Projects" />
           <span className="folder-label text-sm text-center leading-3">Graphic Design</span>

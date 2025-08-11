@@ -19,6 +19,8 @@ import { useSpring } from "@react-spring/three";
 import Home from "./pages/home";
 import Projects from "./pages/projects";
 import CodeProjects from "./pages/codeProjects";
+import GraphicDesignProjects from "./pages/graphicDesignProjects";
+import MusicProjects from "./pages/musicProjects";
 
 function Model({ isZoomed, setIsZoomed, currentPage, setCurrentPage }) {
   const { scene } = useGLTF("/tv.glb");
@@ -38,6 +40,12 @@ function Model({ isZoomed, setIsZoomed, currentPage, setCurrentPage }) {
         return <Projects setCurrentPage={setCurrentPage} />;
       case 'code':
         return <CodeProjects setCurrentPage={setCurrentPage} />;
+      case 'music':
+        return <MusicProjects setCurrentPage={setCurrentPage} />;
+      case 'graphicdesign':
+        return <GraphicDesignProjects setCurrentPage={setCurrentPage} />;
+      case 'research':
+        return <GraphicDesignProjects setCurrentPage={setCurrentPage} />;
       case 'home':
       default:
         return <Home setCurrentPage={setCurrentPage} />;
