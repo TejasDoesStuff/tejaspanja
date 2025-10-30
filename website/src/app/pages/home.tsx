@@ -1,6 +1,10 @@
 import Image from "next/image"
 
-export default function Home({ setCurrentPage }) {
+interface HomeProps {
+  setCurrentPage: (page: string) => void;
+}
+
+export default function Home({ setCurrentPage }: HomeProps) {
   return (
     <div
       onClick={(e) => e.stopPropagation()}

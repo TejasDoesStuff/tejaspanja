@@ -22,11 +22,25 @@ import CodeProjects from "./pages/codeProjects";
 import GraphicDesignProjects from "./pages/graphicDesignProjects";
 import MusicProjects from "./pages/musicProjects";
 
-function Model({ isZoomed, setIsZoomed, currentPage, setCurrentPage }) {
+function Model({
+  isZoomed,
+  setIsZoomed,
+  currentPage,
+  setCurrentPage,
+}: {
+  isZoomed: boolean;
+  setIsZoomed: React.Dispatch<React.SetStateAction<boolean>>;
+  currentPage: string;
+  setCurrentPage: React.Dispatch<React.SetStateAction<string>>;
+}) {
   const { scene } = useGLTF("/tv.glb");
-  const group = useRef();
+  const group = useRef<THREE.Group | null>(null);
 
-  const handleClick = (e) => {
+  interface HandleClickEvent extends React.MouseEvent<THREE.Group, MouseEvent> {
+    nativeEvent: MouseEvent & { preventDefault: () => void };
+  }
+
+  const handleClick = (e: HandleClickEvent): void => {
     e.stopPropagation();
     e.nativeEvent.preventDefault();
     if (!isZoomed) {
@@ -69,7 +83,7 @@ function Model({ isZoomed, setIsZoomed, currentPage, setCurrentPage }) {
   );
 }
 
-function ParallaxEffect({ children, isZoomed }) {
+function ParallaxEffect({ children, isZoomed }: { children: React.ReactNode; isZoomed: boolean }) {
   const { camera } = useThree();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
@@ -94,7 +108,12 @@ function ParallaxEffect({ children, isZoomed }) {
   });
 
   useEffect(() => {
-    const handleMouseMove = (event) => {
+    interface MousePosition {
+      x: number;
+      y: number;
+    }
+
+    const handleMouseMove = (event: MouseEvent): void => {
       const x = (event.clientX / window.innerWidth) * 2 - 1;
       const y = -(event.clientY / window.innerHeight) * 2 + 1;
       setMousePosition({ x, y });
@@ -108,7 +127,7 @@ function ParallaxEffect({ children, isZoomed }) {
 
   useFrame(() => {
     const [x, y, z] = cameraPosition.get();
-    const target = cameraTarget.get();
+    const [targetX, targetY, targetZ] = cameraTarget.get();
 
     const parallaxStrength = isZoomed ? 0.005 : 0.03;
     camera.position.set(
@@ -116,7 +135,7 @@ function ParallaxEffect({ children, isZoomed }) {
       y + mousePosition.y * parallaxStrength,
       z
     );
-    camera.lookAt(...target);
+    camera.lookAt(targetX, targetY, targetZ);
   });
 
   return <>{children}</>;

@@ -2,6 +2,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 
+interface ProjectCardProps {
+  title: string;
+  date: string;
+  category: string;
+  description: React.ReactNode;
+  link?: string;
+  gh?: string;
+  pic: string | string[];
+}
+
 export default function projectCard({
   title,
   date,
@@ -10,11 +20,11 @@ export default function projectCard({
   link,
   gh,
   pic,
-}) {
+}: ProjectCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const expand = (e) => {
+  const expand = (e: React.MouseEvent<HTMLHeadingElement>) => {
     if (!expanded) {
       setExpanded(true);
     } else {
@@ -24,14 +34,14 @@ export default function projectCard({
 
   const images = Array.isArray(pic) ? pic : [pic];
 
-  const nextImage = (e) => {
+  const nextImage = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    setCurrentImageIndex((prev: number) => (prev + 1) % images.length);
   };
 
-  const prevImage = (e) => {
+  const prevImage = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    setCurrentImageIndex((prev: number) => (prev - 1 + images.length) % images.length);
   };
 
   return (

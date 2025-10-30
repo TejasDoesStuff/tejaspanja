@@ -3,7 +3,11 @@ import Link from "next/link";
 import ProjectCard from "../components/projectCard";
 import BackButton from "../components/backButton";
 
-export default function Projects({ setCurrentPage }) {
+interface ProjectsProps {
+  setCurrentPage: (page: string) => void;
+}
+
+export default function Projects({ setCurrentPage }: ProjectsProps) {
 
   return (
     <div

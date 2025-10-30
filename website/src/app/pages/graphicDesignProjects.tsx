@@ -3,7 +3,7 @@ import Link from "next/link";
 import ProjectCard from "../components/projectCard";
 import BackButton from "../components/backButton";
 
-export default function Projects({ setCurrentPage }) {
+export default function Projects({ setCurrentPage }: { setCurrentPage: (page: string) => void }) {
 
   return (
     <div

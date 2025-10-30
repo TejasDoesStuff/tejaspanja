@@ -1,4 +1,9 @@
-export default function backButton({ setCurrentPage, page }) {
+interface BackButtonProps {
+    setCurrentPage: (page: string) => void;
+    page: string;
+}
+
+export default function BackButton({ setCurrentPage, page }: BackButtonProps) {
     return (
         <button 
             onClick={() => setCurrentPage(page)} 
