@@ -12,6 +12,7 @@ export default function projectCard({
   pic,
 }) {
   const [expanded, setExpanded] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   const expand = (e) => {
     if (!expanded) {
@@ -19,6 +20,18 @@ export default function projectCard({
     } else {
       setExpanded(false);
     }
+  };
+
+  const images = Array.isArray(pic) ? pic : [pic];
+
+  const nextImage = (e) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev + 1) % images.length);
+  };
+
+  const prevImage = (e) => {
+    e.stopPropagation();
+    setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
 
   return (
@@ -70,14 +83,33 @@ export default function projectCard({
             <p className="text-[.5rem]/2">{description}</p>
           </div>
           {pic && (
-            <div className="w-1/2">
+            <div className="w-1/2 relative group">
               <Image
-                src={pic}
-                alt={title}
+                src={images[currentImageIndex]}
+                alt={`${title} - Image ${currentImageIndex + 1}`}
                 width={120}
                 height={90}
                 className="w-full h-auto object-cover"
               />
+              {images.length > 1 && (
+                <>
+                  <button
+                    onClick={prevImage}
+                    className="absolute left-0 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white px-1 py-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    ←
+                  </button>
+                  <button
+                    onClick={nextImage}
+                    className="absolute right-0 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white px-1 py-2 text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    →
+                  </button>
+                  <div className="absolute bottom-1 left-1/2 -translate-x-1/2 text-[.4rem] bg-black/50 text-white px-1 rounded">
+                    {currentImageIndex + 1}/{images.length}
+                  </div>
+                </>
+              )}
             </div>
           )}
         </div>
