@@ -147,8 +147,10 @@ function BetterPixelation({ isZoomed }: { isZoomed: boolean }) {
   const { viewport } = useThree();
   
   const granularity = React.useMemo(() => {
-    const baseGranularity = Math.max(1, Math.floor(viewport.width * 0.5));
-    return isZoomed ? Math.max(baseGranularity * 2, 5) : baseGranularity;
+    const baseGranularity = Math.max(1, Math.floor(viewport.width * 0.25));
+    const maxGranularity = 8;
+    const clampedBase = Math.min(baseGranularity, maxGranularity);
+    return isZoomed ? Math.max(clampedBase * 1.5, 4) : clampedBase;
   }, [viewport.width, isZoomed]);
 
   return <Pixelation granularity={granularity} />;
@@ -157,6 +159,21 @@ function BetterPixelation({ isZoomed }: { isZoomed: boolean }) {
 function App() {
   const [isZoomed, setIsZoomed] = useState(false);
   const [currentPage, setCurrentPage] = useState('home');
+  const [scanlinesEnabled, setScanlinesEnabled] = useState(true);
+  const [showPerformanceTip, setShowPerformanceTip] = useState(true);
+  const [isFadingOut, setIsFadingOut] = useState(false);
+  const [effects, setEffects] = useState({
+    scanlines: true,
+    scanlinesOverlay: true,
+    noise: true,
+    chromaticAberration: true,
+    vignette: true,
+    bloom: true,
+  });
+
+  const toggleEffect = (effect: keyof typeof effects) => {
+    setEffects(prev => ({ ...prev, [effect]: !prev[effect] }));
+  };
 
   useEffect(() => {
     const style = document.createElement("style");
@@ -175,6 +192,21 @@ function App() {
         opacity: 1;
         transform: translateY(0);
       }
+      .effects-panel {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-in-out;
+      }
+      .effects-panel-container:hover .effects-panel {
+        max-height: 400px;
+      }
+      .performance-tip {
+        opacity: 1;
+        transition: opacity 0.3s ease-out;
+      }
+      .performance-tip.fade-out {
+        opacity: 0;
+      }
     `;
     document.head.appendChild(style);
 
@@ -183,16 +215,152 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsFadingOut(true);
+      setTimeout(() => setShowPerformanceTip(false), 300);
+    }, 3000);
+
+    const handleUserInteraction = () => {
+      setIsFadingOut(true);
+      setTimeout(() => setShowPerformanceTip(false), 300);
+    };
+
+    window.addEventListener('click', handleUserInteraction);
+    window.addEventListener('keydown', handleUserInteraction);
+    window.addEventListener('mousemove', handleUserInteraction, { once: true });
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('click', handleUserInteraction);
+      window.removeEventListener('keydown', handleUserInteraction);
+      window.removeEventListener('mousemove', handleUserInteraction);
+    };
+  }, []);
+
   return (
     <div className="App w-full h-screen relative">
-      <div
-        className="scanline-overlay absolute inset-0 pointer-events-none z-10 opacity-80"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px)",
-          backgroundSize: "100% 2px",
-        }}
-      />
+      {effects.scanlinesOverlay && (
+        <div
+          className="scanline-overlay absolute inset-0 pointer-events-none z-10 opacity-80"
+          style={{
+            backgroundImage:
+              "repeating-linear-gradient(0deg, rgba(0,0,0,0.1), rgba(0,0,0,0.1) 1px, transparent 1px, transparent 2px)",
+            backgroundSize: "100% 2px",
+          }}
+        />
+      )}
+
+      {showPerformanceTip && (
+        <div 
+          className={`performance-tip absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 bitcount ${isFadingOut ? 'fade-out' : ''}`}
+          style={{ imageRendering: 'pixelated' }}
+        >
+          <div 
+            className="border-2 border-black rounded-sm p-4"
+            style={{ background: '#fff' }}
+          >
+            <div className="flex items-center gap-2">
+              <p className="text-black text-sm font-bold">
+                If performance is low, turn effects off
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="absolute top-4 right-4 z-20 bitcount effects-panel-container" style={{ imageRendering: 'pixelated' }}>
+        <div className="border-2 border-black rounded-sm overflow-hidden" style={{ background: 'transparent' }}>
+          <button
+            className="w-full px-4 py-2 border-b-2 border-black text-black font-extrabold text-sm hover:bg-gray-200 transition-colors cursor-default"
+            style={{ background: '#fff' }}
+          >
+            EFFECTS
+          </button>
+          
+          <div className="effects-panel">
+            <div className="p-3 space-y-2" style={{ background: '#fff' }}>
+              <div className="flex items-center justify-between gap-4">
+                <span className="text-black text-xs font-bold">Scanlines</span>
+                <button
+                  onClick={() => toggleEffect('scanlines')}
+                  className="px-2 py-1 w-4 aspect-square border-2 border-black text-xs font-bold transition-colors"
+                  style={{ 
+                    background: effects.scanlines ? '#00ff00' : '#808080',
+                    color: '#000'
+                  }}
+                >
+                </button>
+              </div>
+              
+              <div className="flex items-center justify-between">
+                <span className="text-black text-xs font-bold">Overlay</span>
+                <button
+                  onClick={() => toggleEffect('scanlinesOverlay')}
+                  className="px-2 py-1 w-4 aspect-square border-2 border-black text-xs font-bold transition-colors"
+                  style={{ 
+                    background: effects.scanlinesOverlay ? '#00ff00' : '#808080',
+                    color: '#000'
+                  }}
+                >
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-black text-xs font-bold">Abberation</span>
+                <button
+                  onClick={() => toggleEffect('chromaticAberration')}
+                  className="px-2 py-1 w-4 aspect-square border-2 border-black text-xs font-bold transition-colors"
+                  style={{ 
+                    background: effects.chromaticAberration ? '#00ff00' : '#808080',
+                    color: '#000'
+                  }}
+                >
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-black text-xs font-bold">Noise</span>
+                <button
+                  onClick={() => toggleEffect('noise')}
+                  className="px-2 py-1 w-4 aspect-square border-2 border-black text-xs font-bold transition-colors"
+                  style={{ 
+                    background: effects.noise ? '#00ff00' : '#808080',
+                    color: '#000'
+                  }}
+                >
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-black text-xs font-bold">Vignette</span>
+                <button
+                  onClick={() => toggleEffect('vignette')}
+                  className="px-2 py-1 w-4 aspect-square border-2 border-black text-xs font-bold transition-colors"
+                  style={{ 
+                    background: effects.vignette ? '#00ff00' : '#808080',
+                    color: '#000'
+                  }}
+                >
+                </button>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-black text-xs font-bold">Bloom</span>
+                <button
+                  onClick={() => toggleEffect('bloom')}
+                  className="px-2 py-1 w-4 aspect-square border-2 border-black text-xs font-bold transition-colors"
+                  style={{ 
+                    background: effects.bloom ? '#00ff00' : '#808080',
+                    color: '#000'
+                  }}
+                >
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       <Canvas
         className="canvas1"
@@ -206,12 +374,12 @@ function App() {
       >
         <color attach="background" args={["#101010"]} />
         <EffectComposer>
-          <Noise opacity={0.02} />
-          <Scanline density={2} opacity={0.1} />
+          {effects.noise ? <Noise opacity={0.02}/> : <></>}
+          {effects.scanlines ? <Scanline density={2} opacity={0.1}/> : <></>}
           <BetterPixelation isZoomed={isZoomed} />
-          <ChromaticAberration offset={[0.001, 0.002]} />
-          <Vignette offset={0.5} darkness={0.3} eskil={false} />
-          <Bloom intensity={0.1} luminanceThreshold={0.2} />
+          {effects.chromaticAberration ? <ChromaticAberration offset={[0.001, 0.002]} /> : <></>}
+          {effects.vignette ? <Vignette offset={0.5} darkness={0.3} eskil={false} /> : <></>}
+          {effects.bloom ? <Bloom intensity={0.1} luminanceThreshold={0.2} /> : <></>}
           <ParallaxEffect isZoomed={isZoomed}>
             <Stage environment={null}>
               <Model 

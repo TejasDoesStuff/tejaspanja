@@ -23,7 +23,8 @@ function Home({ setCurrentPage }: HomeProps) {
         flexDirection: "column",
         borderRadius: "2px",
         border: "2px solid black",
-        imageRendering: "pixelated",
+        imageRendering: "auto",
+        WebkitFontSmoothing: "antialiased",
         transform: "translateZ(0)",
       }}
     >
