@@ -31,7 +31,7 @@ function Projects({ setCurrentPage }: ProjectsProps) {
     >
       <div className="w-full h-6 border-b-2 border-black flex items-center justify-between px-1 bitcount">
         <div className="flex flex-row items-center gap-2">
-          <h1 className="font-extrabold text-center">MUSIC</h1>
+          <h1 className="font-extrabold text-center">RESEARCH</h1>
         </div>
         <BackButton setCurrentPage={setCurrentPage} page={'projects'}/>
       </div>

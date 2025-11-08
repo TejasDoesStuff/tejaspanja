@@ -100,6 +100,7 @@ export default function projectCard({
                 width={120}
                 height={90}
                 className="w-full h-auto object-cover"
+                priority
               />
               {images.length > 1 && (
                 <>

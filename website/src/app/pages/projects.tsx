@@ -1,11 +1,12 @@
 import Image from "next/image";
 import BackButton from "../components/backButton";
+import { memo } from "react";
 
 interface ProjectsProps {
   setCurrentPage: (page: string) => void;
 }
 
-export default function Projects({ setCurrentPage }: ProjectsProps) {
+function Projects({ setCurrentPage }: ProjectsProps) {
   return (
     <div
       onClick={(e) => e.stopPropagation()}
@@ -21,6 +22,7 @@ export default function Projects({ setCurrentPage }: ProjectsProps) {
         borderRadius: "2px",
         border: "2px solid black",
         imageRendering: "pixelated",
+        willChange: "transform",
       }}
     >
       <div className="w-full h-6 border-b-2 border-black flex items-center justify-between px-1 bitcount">
@@ -29,34 +31,36 @@ export default function Projects({ setCurrentPage }: ProjectsProps) {
       </div>
       <div className="p-2 mb-2 flex justify-around w-full h-full items-center">
         <div
-          className="flex flex-col items-center hover:scale-110 transition-all duration-300 folder-item cursor-pointer"
+          className="flex flex-col items-center hover:scale-110 transition-all duration-300 folder-item cursor-pointer will-change-transform"
           onClick={() => setCurrentPage("code")}
         >
-          <Image src="/document.svg" width={40} height={40} alt="Projects" />
+          <Image src="/document.svg" width={40} height={40} alt="Projects" priority unoptimized />
           <span className="folder-label text-sm">Code</span>
         </div>
         <div
-          className="flex flex-col items-center hover:scale-110 transition-all duration-300 folder-item cursor-pointer"
+          className="flex flex-col items-center hover:scale-110 transition-all duration-300 folder-item cursor-pointer will-change-transform"
           onClick={() => setCurrentPage("music")}
         >
-          <Image src="/document.svg" width={40} height={40} alt="Projects" />
+          <Image src="/document.svg" width={40} height={40} alt="Projects" priority unoptimized />
           <span className="folder-label text-sm">Music</span>
         </div>
         <div
-          className="flex flex-col items-center hover:scale-110 transition-all duration-300 folder-item cursor-pointer"
+          className="flex flex-col items-center hover:scale-110 transition-all duration-300 folder-item cursor-pointer will-change-transform"
           onClick={() => setCurrentPage("graphicdesign")}
         >
-          <Image src="/document.svg" width={40} height={40} alt="Projects" />
+          <Image src="/document.svg" width={40} height={40} alt="Projects" priority unoptimized />
           <span className="folder-label text-sm text-center leading-3">Graphic Design</span>
         </div>
         <div
-          className="flex flex-col items-center hover:scale-110 transition-all duration-300 folder-item cursor-pointer"
-          onClick={() => setCurrentPage("code")}
+          className="flex flex-col items-center hover:scale-110 transition-all duration-300 folder-item cursor-pointer will-change-transform"
+          onClick={() => setCurrentPage("research")}
         >
-          <Image src="/document.svg" width={40} height={40} alt="Projects" />
+          <Image src="/document.svg" width={40} height={40} alt="Projects" priority unoptimized />
           <span className="folder-label text-sm">Research</span>
         </div>
       </div>
     </div>
   );
 }
+
+export default memo(Projects);

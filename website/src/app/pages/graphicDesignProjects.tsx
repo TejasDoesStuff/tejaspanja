@@ -2,8 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import ProjectCard from "../components/projectCard";
 import BackButton from "../components/backButton";
+import { memo } from "react";
 
-export default function Projects({ setCurrentPage }: { setCurrentPage: (page: string) => void }) {
+function Projects({ setCurrentPage }: { setCurrentPage: (page: string) => void }) {
 
   return (
     <div
@@ -21,6 +22,7 @@ export default function Projects({ setCurrentPage }: { setCurrentPage: (page: st
         borderRadius: "2px",
         border: "2px solid black",
         imageRendering: "pixelated",
+        willChange: "transform",
       }}
     >
       <div className="w-full h-6 border-b-2 border-black flex items-center justify-between px-1 bitcount">
@@ -35,3 +37,5 @@ export default function Projects({ setCurrentPage }: { setCurrentPage: (page: st
     </div>
   );
 }
+
+export default memo(Projects);

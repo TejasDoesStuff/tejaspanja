@@ -2,12 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import ProjectCard from "../components/projectCard";
 import BackButton from "../components/backButton";
+import { memo } from "react";
 
 interface ProjectsProps {
   setCurrentPage: (page: string) => void;
 }
 
-export default function Projects({ setCurrentPage }: ProjectsProps) {
+function Projects({ setCurrentPage }: ProjectsProps) {
 
   return (
     <div
@@ -25,6 +26,7 @@ export default function Projects({ setCurrentPage }: ProjectsProps) {
         borderRadius: "2px",
         border: "2px solid black",
         imageRendering: "pixelated",
+        willChange: "transform",
       }}
     >
       <div className="w-full h-6 border-b-2 border-black flex items-center justify-between px-1 bitcount">
@@ -41,6 +43,7 @@ export default function Projects({ setCurrentPage }: ProjectsProps) {
                 width={8}
                 height={8}
                 className="cursor-pointer"
+                unoptimized
               />
             </Link>
         </div>
@@ -65,3 +68,5 @@ export default function Projects({ setCurrentPage }: ProjectsProps) {
     </div>
   );
 }
+
+export default memo(Projects);
