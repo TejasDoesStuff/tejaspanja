@@ -18,7 +18,11 @@ function Projects({ setCurrentPage }: { setCurrentPage: (page: string) => void }
         <BackButton setCurrentPage={setCurrentPage} page={'projects'}/>
       </div>
       <div className="p-2 pt-1 overflow-auto h-full">
-        <ProjectCard title={"Osaka Dragons"} description={"A branding package created for a fictional womens soccer team: Osaka Dragons. Made for the FBLA Graphic Design event. Won 1st place states and top 15 nationals. Created by Tejas Panja, Iris Dey, and Shreyansi Swain"} date={"Dec 2024 - Jul 2025"} gh={""} category={"Graphic Design"} link={""} pic={["/particlesimpic.jpg", "/image2.jpg", "/image3.jpg"]}/>
+        <div className="grid grid-cols-3 gap-2">
+          <ProjectCard title={"Osaka Dragons"} description={"A branding package created for a fictional womens soccer team: Osaka Dragons. Made for the FBLA Graphic Design event. Won 1st place states and top 15 nationals. Created by Tejas Panja, Iris Dey, and Shreyansi Swain"} date={"Dec 2024 - Jul 2025"} gh={""} category={"Branding Package"} link={""} pic={["/osakadragons1.jpg", "/osakadragons2.jpg", "/osakadragons3.jpg", "/osakadragons4.jpg"]}/>
+          <ProjectCard title={"J.I.D Poster"} description={"A poster I made of the rapper JID in a collage style"} date={"Jul 2025"} gh={""} category={"Poster"} link={""} pic={"/JID.png"}/>
+          <ProjectCard title={"MF DOOM Poster"} description={"A poster I made of the rapper MF DOOM in a brutalist style"} date={"Jul 2025"} gh={""} category={"Poster"} link={""} pic={"/MFDOM.jpg"}/>
+        </div>
       </div>
     </div>
   );

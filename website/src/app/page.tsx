@@ -100,8 +100,8 @@ function ParallaxEffect({ children, isZoomed }: { children: React.ReactNode; isZ
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   const { cameraPosition, lookAtY } = useSpring({
-    cameraPosition: isZoomed ? [0, .5, 2] : [0, 0, 1],
-    lookAtY: isZoomed ? 0.4 : 0,
+    cameraPosition: isZoomed ? [0, .55, 1.6] : [0, 0, 1],
+    lookAtY: isZoomed ? 0.47 : 0,
     config: {
       mass: 1,
       tension: 180,
@@ -205,6 +205,8 @@ function NotificationChat({
   onCommand: (cmd: string) => void;
 }) {
   const [input, setInput] = useState('');
+  const [isHovered, setIsHovered] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
@@ -220,9 +222,16 @@ function NotificationChat({
     }
   };
 
+  const hasNotifications = notifications.length > 0;
+  const shouldBeFullOpacity = hasNotifications || isHovered || isFocused;
+
   return (
-    <div className="absolute bottom-4 left-4 z-30 w-[500px] max-w-[calc(100vw-2rem)] group">
-      <div className="transition-opacity duration-300 opacity-30 group-hover:opacity-95">
+    <div 
+      className="absolute bottom-4 left-4 z-30 w-[500px] max-w-[calc(100vw-2rem)] group"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className={`transition-opacity duration-300 ${shouldBeFullOpacity ? 'opacity-95' : 'opacity-30'}`}>
         <div className="max-h-[200px] overflow-y-auto p-3 space-y-1">
           {notifications.map((notif) => (
             <div key={notif.id} className="animate-fade-in">
@@ -252,6 +261,8 @@ function NotificationChat({
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
             className="flex-1 bg-transparent text-green-400 text-sm font-bold outline-none"
             style={{ fontFamily: 'monospace' }}
             placeholder="type 'help' for commands..."
