@@ -315,6 +315,13 @@ function App() {
         opacity: 1;
         transform: translateY(0);
       }
+      @media (max-width: 640px) {
+        .folder-label {
+          opacity: 1 !important;
+          transform: translateY(0) !important;
+          position: static;
+        }
+      }
       .effects-panel {
         max-height: 0;
         overflow: hidden;
