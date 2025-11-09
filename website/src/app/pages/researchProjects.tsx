@@ -13,18 +13,8 @@ function Projects({ setCurrentPage }: ProjectsProps) {
   return (
     <div
       onClick={(e) => e.stopPropagation()}
-      
+      className="w-150 h-100 bg-transparent overflow-hidden font-sans text-[#010101] flex flex-col rounded border-2 border-black transform translate-z-0"
       style={{
-        width: 240,
-        height: 150,
-        background: "transparent",
-        overflow: "hidden",
-        fontFamily: "Arial",
-        color: "#010101",
-        display: "flex",
-        flexDirection: "column",
-        borderRadius: "2px",
-        border: "2px solid black",
         imageRendering: "pixelated",
         willChange: "transform",
       }}

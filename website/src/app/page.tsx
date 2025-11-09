@@ -15,7 +15,7 @@ import {
 } from "@react-three/postprocessing";
 import Image from "next/image";
 import Link from "next/link";
-import { useSpring } from "@react-spring/three";
+import { useSpring, animated } from "@react-spring/three";
 
 import Home from "./pages/home";
 import Projects from "./pages/projects";
@@ -38,6 +38,15 @@ function Model({
   const { scene } = useGLTF("/tv.glb");
   const group = useRef<THREE.Group | null>(null);
 
+  const { scale } = useSpring({
+    scale: isZoomed ? 2.5 : 1,
+    config: {
+      mass: 1,
+      tension: 180,
+      friction: 30,
+    },
+  });
+
   interface HandleClickEvent extends React.MouseEvent<THREE.Group, MouseEvent> {
     nativeEvent: MouseEvent & { preventDefault: () => void };
   }
@@ -50,6 +59,7 @@ function Model({
     }
   };
 
+  // the different pages of the website
   const renderPage = useMemo(() => {
     switch(currentPage) {
       case 'projects':
@@ -69,19 +79,19 @@ function Model({
   }, [currentPage, setCurrentPage]);
 
   return (
-    <group ref={group} onClick={handleClick}>
+    <animated.group ref={group} onClick={handleClick} scale={scale}>
       <primitive object={scene} />
       {isZoomed && (
         <Html
           transform
           position={[0, 0.31, 0.11]}
           rotation={[Math.PI, Math.PI, Math.PI]}
-          scale={0.09}
+          scale={0.036}
         >
           {renderPage}
         </Html>
       )}
-    </group>
+    </animated.group>
   );
 }
 
@@ -89,23 +99,13 @@ function ParallaxEffect({ children, isZoomed }: { children: React.ReactNode; isZ
   const { camera } = useThree();
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
-  const zoomedOutPosition = [0, 0, 1];
-  const zoomedInPosition = [0, 0.03, 0.6];
-
-  const zoomedOutTarget = [0, 0, 0];
-  const zoomedInTarget = [0, 0.03, 0];
-
-  const { cameraPosition, cameraTarget } = useSpring({
-    cameraPosition: isZoomed
-      ? [zoomedInPosition[0], zoomedInPosition[1], zoomedInPosition[2]]
-      : [zoomedOutPosition[0], zoomedOutPosition[1], zoomedOutPosition[2]],
-    cameraTarget: isZoomed
-      ? [zoomedInTarget[0], zoomedInTarget[1], zoomedInTarget[2]]
-      : [zoomedOutTarget[0], zoomedOutTarget[1], zoomedOutTarget[2]],
+  const { cameraPosition, lookAtY } = useSpring({
+    cameraPosition: isZoomed ? [0, .5, 2] : [0, 0, 1],
+    lookAtY: isZoomed ? 0.4 : 0,
     config: {
       mass: 1,
       tension: 180,
-      friction: 30, 
+      friction: 30,
     },
   });
 
@@ -129,20 +129,20 @@ function ParallaxEffect({ children, isZoomed }: { children: React.ReactNode; isZ
 
   useFrame(() => {
     const [x, y, z] = cameraPosition.get();
-    const [targetX, targetY, targetZ] = cameraTarget.get();
-
+    const targetY = lookAtY.get();
     const parallaxStrength = isZoomed ? 0.005 : 0.03;
     camera.position.set(
       x + mousePosition.x * parallaxStrength,
       y + mousePosition.y * parallaxStrength,
       z
     );
-    camera.lookAt(targetX, targetY, targetZ);
+    camera.lookAt(0, targetY, 0);
   });
 
   return <>{children}</>;
 }
 
+// attempt to fix the bad distortion at higher resolutions but didnt work lol
 function BetterPixelation({ isZoomed }: { isZoomed: boolean }) {
   const { viewport } = useThree();
   
@@ -156,12 +156,122 @@ function BetterPixelation({ isZoomed }: { isZoomed: boolean }) {
   return <Pixelation granularity={granularity} />;
 }
 
+// ai generated function
+function PerformanceMonitor({ 
+  onLowPerformance 
+}: { 
+  onLowPerformance: () => void 
+}) {
+  const fpsHistory = useRef<number[]>([]);
+  const lastTime = useRef(performance.now());
+  const hasTriggered = useRef(false);
+
+  useFrame(() => {
+    const now = performance.now();
+    const delta = now - lastTime.current;
+    const fps = 1000 / delta;
+    lastTime.current = now;
+
+    fpsHistory.current.push(fps);
+    if (fpsHistory.current.length > 60) {
+      fpsHistory.current.shift();
+    }
+
+    if (!hasTriggered.current && fpsHistory.current.length >= 60) {
+      const avgFps = fpsHistory.current.reduce((a, b) => a + b, 0) / fpsHistory.current.length;
+      if (avgFps < 30) {
+        hasTriggered.current = true;
+        onLowPerformance();
+      }
+    }
+  });
+
+  return null;
+}
+
+type Notification = {
+  id: number;
+  message: string;
+  timestamp: number;
+  type?: 'system' | 'command' | 'error';
+};
+
+// terminal
+function NotificationChat({ 
+  notifications, 
+  onCommand 
+}: { 
+  notifications: Notification[];
+  onCommand: (cmd: string) => void;
+}) {
+  const [input, setInput] = useState('');
+  const inputRef = useRef<HTMLInputElement>(null);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [notifications]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (input.trim()) {
+      onCommand(input.trim());
+      setInput('');
+    }
+  };
+
+  return (
+    <div className="absolute bottom-4 left-4 z-30 w-[500px] max-w-[calc(100vw-2rem)] group">
+      <div className="transition-opacity duration-300 opacity-30 group-hover:opacity-95">
+        <div className="max-h-[200px] overflow-y-auto p-3 space-y-1">
+          {notifications.map((notif) => (
+            <div key={notif.id} className="animate-fade-in">
+              <div className="flex items-start gap-2">
+                <span className={`text-sm font-bold flex-shrink-0 ${
+                  notif.type === 'command' ? 'text-cyan-400' : 
+                  notif.type === 'error' ? 'text-red-400' : 
+                  'text-green-500'
+                }`} style={{ fontFamily: 'monospace' }}>
+                  {notif.type === 'command' ? '$' : '>'}
+                </span>
+                <p className={`text-sm font-bold leading-relaxed ${
+                  notif.type === 'error' ? 'text-red-400' : 'text-green-400'
+                }`} style={{ fontFamily: 'monospace' }}>
+                  {notif.message}
+                </p>
+              </div>
+            </div>
+          ))}
+          <div ref={chatEndRef} />
+        </div>
+
+        <form onSubmit={handleSubmit} className="border-t-2 border-green-500 p-2 flex items-center gap-2">
+          <span className="text-cyan-400 text-sm font-bold" style={{ fontFamily: 'monospace' }}>$</span>
+          <input
+            ref={inputRef}
+            type="text"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            className="flex-1 bg-transparent text-green-400 text-sm font-bold outline-none"
+            style={{ fontFamily: 'monospace' }}
+            placeholder="type 'help' for commands..."
+            autoComplete="off"
+            spellCheck={false}
+          />
+        </form>
+      </div>
+    </div>
+  );
+}
+// end terminal
+
 function App() {
   const [isZoomed, setIsZoomed] = useState(false);
   const [currentPage, setCurrentPage] = useState('home');
   const [scanlinesEnabled, setScanlinesEnabled] = useState(true);
   const [showPerformanceTip, setShowPerformanceTip] = useState(true);
   const [isFadingOut, setIsFadingOut] = useState(false);
+  const [autoOptimized, setAutoOptimized] = useState(false);
   const [effects, setEffects] = useState({
     scanlines: true,
     scanlinesOverlay: true,
@@ -170,6 +280,8 @@ function App() {
     vignette: true,
     bloom: true,
   });
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const notificationId = useRef(0);
 
   const toggleEffect = (effect: keyof typeof effects) => {
     setEffects(prev => ({ ...prev, [effect]: !prev[effect] }));
@@ -200,12 +312,18 @@ function App() {
       .effects-panel-container:hover .effects-panel {
         max-height: 400px;
       }
-      .performance-tip {
-        opacity: 1;
-        transition: opacity 0.3s ease-out;
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateX(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateX(0);
+        }
       }
-      .performance-tip.fade-out {
-        opacity: 0;
+      .animate-fade-in {
+        animation: fadeIn 0.3s ease-out;
       }
     `;
     document.head.appendChild(style);
@@ -215,28 +333,93 @@ function App() {
     };
   }, []);
 
+// commands/notifications
+  const addNotification = (message: string, type: 'system' | 'command' | 'error' = 'system') => {
+    const id = notificationId.current++;
+    setNotifications(prev => [...prev, { id, message, timestamp: Date.now(), type }]);
+    
+    setTimeout(() => {
+      setNotifications(prev => prev.filter(n => n.id !== id));
+    }, 10000);
+  };
+
+  const handleCommand = (cmd: string) => {
+    addNotification(cmd, 'command');
+    
+    const [command, ...args] = cmd.toLowerCase().split(' ');
+    
+    switch(command) {
+      case 'help':
+        addNotification('Available commands:');
+        addNotification('  toggle <effect>');
+        addNotification('  effects')
+        addNotification('  clear');
+        break;
+      
+      case 'toggle':
+        const effect = args[0];
+        const effectMap: Record<string, keyof typeof effects> = {
+          'scanlines': 'scanlines',
+          'overlay': 'scanlinesOverlay',
+          'noise': 'noise',
+          'aberration': 'chromaticAberration',
+          'vignette': 'vignette',
+          'bloom': 'bloom',
+        };
+        
+        if (effectMap[effect]) {
+          const effectKey = effectMap[effect];
+          const newState = !effects[effectKey];
+          setEffects(prev => ({ ...prev, [effectKey]: newState }));
+          addNotification(`${effect}: ${newState ? 'ON' : 'OFF'}`);
+        } else {
+          addNotification(`Uh oh! ${effect} doesn't exist :/ Type 'help'`, 'error');
+        }
+        break;
+      
+      case 'effects':
+        addNotification('Current effect states:');
+        addNotification(`  scanlines: ${effects.scanlines ? 'ON' : 'OFF'}`);
+        addNotification(`  overlay: ${effects.scanlinesOverlay ? 'ON' : 'OFF'}`);
+        addNotification(`  noise: ${effects.noise ? 'ON' : 'OFF'}`);
+        addNotification(`  aberration: ${effects.chromaticAberration ? 'ON' : 'OFF'}`);
+        addNotification(`  vignette: ${effects.vignette ? 'ON' : 'OFF'}`);
+        addNotification(`  bloom: ${effects.bloom ? 'ON' : 'OFF'}`);
+        break;
+      
+      case 'freddy_fazbear':
+        addNotification('HAR HAR HAR HAR HAR HAR HAR HAR HAR HAR');
+        break;
+      
+      case 'clear':
+        setNotifications([]);
+        break;
+      
+      default:
+        addNotification(`Uh oh! ${command} doesn't exist :/`, 'error');
+    }
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
-      setIsFadingOut(true);
-      setTimeout(() => setShowPerformanceTip(false), 300);
-    }, 3000);
-
-    const handleUserInteraction = () => {
-      setIsFadingOut(true);
-      setTimeout(() => setShowPerformanceTip(false), 300);
-    };
-
-    window.addEventListener('click', handleUserInteraction);
-    window.addEventListener('keydown', handleUserInteraction);
-    window.addEventListener('mousemove', handleUserInteraction, { once: true });
+      addNotification("Hi :)! Type 'help' for commands");
+    }, 1000);
 
     return () => {
       clearTimeout(timer);
-      window.removeEventListener('click', handleUserInteraction);
-      window.removeEventListener('keydown', handleUserInteraction);
-      window.removeEventListener('mousemove', handleUserInteraction);
     };
   }, []);
+// end command/notifications
+
+  // ai generated function
+  const handleLowPerformance = () => {
+    setEffects(prev => ({
+      ...prev,
+      bloom: false,
+      chromaticAberration: false,
+    }));
+    addNotification("Some effects disabled for better performance :(");
+  };
 
   return (
     <div className="App w-full h-screen relative">
@@ -251,116 +434,7 @@ function App() {
         />
       )}
 
-      {showPerformanceTip && (
-        <div 
-          className={`performance-tip absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-30 bitcount ${isFadingOut ? 'fade-out' : ''}`}
-          style={{ imageRendering: 'pixelated' }}
-        >
-          <div 
-            className="border-2 border-black rounded-sm p-4"
-            style={{ background: '#fff' }}
-          >
-            <div className="flex items-center gap-2">
-              <p className="text-black text-sm font-bold">
-                If performance is low, turn effects off
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="absolute top-4 right-4 z-20 bitcount effects-panel-container" style={{ imageRendering: 'pixelated' }}>
-        <div className="border-2 border-black rounded-sm overflow-hidden" style={{ background: 'transparent' }}>
-          <button
-            className="w-full px-4 py-2 border-b-2 border-black text-black font-extrabold text-sm hover:bg-gray-200 transition-colors cursor-default"
-            style={{ background: '#fff' }}
-          >
-            EFFECTS
-          </button>
-          
-          <div className="effects-panel">
-            <div className="p-3 space-y-2" style={{ background: '#fff' }}>
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-black text-xs font-bold">Scanlines</span>
-                <button
-                  onClick={() => toggleEffect('scanlines')}
-                  className="px-2 py-1 w-4 aspect-square border-2 border-black text-xs font-bold transition-colors"
-                  style={{ 
-                    background: effects.scanlines ? '#00ff00' : '#808080',
-                    color: '#000'
-                  }}
-                >
-                </button>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-black text-xs font-bold">Overlay</span>
-                <button
-                  onClick={() => toggleEffect('scanlinesOverlay')}
-                  className="px-2 py-1 w-4 aspect-square border-2 border-black text-xs font-bold transition-colors"
-                  style={{ 
-                    background: effects.scanlinesOverlay ? '#00ff00' : '#808080',
-                    color: '#000'
-                  }}
-                >
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-black text-xs font-bold">Abberation</span>
-                <button
-                  onClick={() => toggleEffect('chromaticAberration')}
-                  className="px-2 py-1 w-4 aspect-square border-2 border-black text-xs font-bold transition-colors"
-                  style={{ 
-                    background: effects.chromaticAberration ? '#00ff00' : '#808080',
-                    color: '#000'
-                  }}
-                >
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-black text-xs font-bold">Noise</span>
-                <button
-                  onClick={() => toggleEffect('noise')}
-                  className="px-2 py-1 w-4 aspect-square border-2 border-black text-xs font-bold transition-colors"
-                  style={{ 
-                    background: effects.noise ? '#00ff00' : '#808080',
-                    color: '#000'
-                  }}
-                >
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-black text-xs font-bold">Vignette</span>
-                <button
-                  onClick={() => toggleEffect('vignette')}
-                  className="px-2 py-1 w-4 aspect-square border-2 border-black text-xs font-bold transition-colors"
-                  style={{ 
-                    background: effects.vignette ? '#00ff00' : '#808080',
-                    color: '#000'
-                  }}
-                >
-                </button>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-black text-xs font-bold">Bloom</span>
-                <button
-                  onClick={() => toggleEffect('bloom')}
-                  className="px-2 py-1 w-4 aspect-square border-2 border-black text-xs font-bold transition-colors"
-                  style={{ 
-                    background: effects.bloom ? '#00ff00' : '#808080',
-                    color: '#000'
-                  }}
-                >
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <NotificationChat notifications={notifications} onCommand={handleCommand} />
 
       <Canvas
         className="canvas1"
@@ -373,6 +447,7 @@ function App() {
         }}
       >
         <color attach="background" args={["#101010"]} />
+        <PerformanceMonitor onLowPerformance={handleLowPerformance} />
         <EffectComposer>
           {effects.noise ? <Noise opacity={0.02}/> : <></>}
           {effects.scanlines ? <Scanline density={2} opacity={0.1}/> : <></>}
