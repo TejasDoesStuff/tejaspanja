@@ -16,7 +16,7 @@ function About({ setCurrentPage }: AboutProps) {
     >
       <div className="w-full h-6 border-b-2 border-black flex items-center justify-between px-1 bitcount">
         <h1 className="font-extrabold text-center text-xs sm:text-base flex gap-2 items-center">
-          SKILLS
+          RESUME
           <a
             href={resumePath}
             download="Tejas_Panja_Resume.pdf"

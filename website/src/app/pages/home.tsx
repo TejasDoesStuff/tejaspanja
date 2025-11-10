@@ -36,17 +36,17 @@ function Home({ setCurrentPage }: HomeProps) {
         </div>
         <div 
           className="flex flex-col items-center hover:scale-110 active:scale-95 transition-all duration-100 folder-item cursor-pointer will-change-transform"
-          onClick={() => handlePageChange('skills')}
+          onClick={() => handlePageChange('resume')}
         >
           <Image src="/folder.svg" width={64} height={64} alt="Skills" priority unoptimized />
-          <span className="folder-label text-xs sm:text-sm">Skills</span>
+          <span className="folder-label text-xs sm:text-sm">Resume</span>
         </div>
         <div 
           className="flex flex-col items-center hover:scale-110 active:scale-95 transition-all duration-100 folder-item cursor-pointer will-change-transform"
-          onClick={() => handlePageChange('contact')}
+          onClick={() => handlePageChange('blog')}
         >
-          <Image src="/folder.svg" width={64} height={64} alt="Contact" priority unoptimized />
-          <span className="folder-label text-xs sm:text-sm rounded">Contact</span>
+          <Image src="/folder.svg" width={64} height={64} alt="Blog" priority unoptimized />
+          <span className="folder-label text-xs sm:text-sm rounded">Blog</span>
         </div>
       </div>
     </div>

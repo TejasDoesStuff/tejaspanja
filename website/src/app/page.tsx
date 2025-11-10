@@ -19,7 +19,7 @@ import { useSpring, animated } from "@react-spring/three";
 
 import Home from "./pages/home";
 import Projects from "./pages/projects";
-import Skills from "./pages/skills";
+import Resume from "./pages/resume";
 import About from "./pages/about";
 import CodeProjects from "./pages/codeProjects";
 import GraphicDesignProjects from "./pages/graphicDesignProjects";
@@ -68,8 +68,8 @@ function Model({
         return <Projects setCurrentPage={setCurrentPage} />;
       case 'about':
         return <About setCurrentPage={setCurrentPage} />;
-      case 'skills':
-        return <Skills setCurrentPage={setCurrentPage} />;
+      case 'resume':
+        return <Resume setCurrentPage={setCurrentPage} />;
       case 'code':
         return <CodeProjects setCurrentPage={setCurrentPage} />;
       case 'music':
@@ -233,7 +233,7 @@ function NotificationChat({
 
   return (
     <div 
-      className="absolute bottom-4 left-4 z-30 w-[500px] max-w-[calc(100vw-2rem)] group"
+      className="absolute bottom-4 left-4 z-50 w-[500px] max-w-[calc(100vw-2rem)] group"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
