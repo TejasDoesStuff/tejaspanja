@@ -144,7 +144,7 @@ export default function projectCard({
           className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
           onClick={handleOverlayClick}
         >
-          <div className="bg-white border-black border-2 max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col md:flex-row gap-4 p-4">
+          <div className="bg-white border-black border-2 max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col md:flex-row gap-4 p-4 rounded-tr-4xl rounded-tl-4xl">
             <div className="relative flex-shrink-0 md:w-1/2 flex items-center justify-center">
               <Image
                 src={images[currentImageIndex]}

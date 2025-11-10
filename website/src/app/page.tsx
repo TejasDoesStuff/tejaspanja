@@ -19,6 +19,7 @@ import { useSpring, animated } from "@react-spring/three";
 
 import Home from "./pages/home";
 import Projects from "./pages/projects";
+import Skills from "./pages/skills";
 import About from "./pages/about";
 import CodeProjects from "./pages/codeProjects";
 import GraphicDesignProjects from "./pages/graphicDesignProjects";
@@ -67,6 +68,8 @@ function Model({
         return <Projects setCurrentPage={setCurrentPage} />;
       case 'about':
         return <About setCurrentPage={setCurrentPage} />;
+      case 'skills':
+        return <Skills setCurrentPage={setCurrentPage} />;
       case 'code':
         return <CodeProjects setCurrentPage={setCurrentPage} />;
       case 'music':
@@ -234,7 +237,7 @@ function NotificationChat({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className={`transition-opacity duration-300 ${shouldBeFullOpacity ? 'opacity-95' : 'opacity-30'}`}>
+      <div className={`transition-opacity duration-300 ${shouldBeFullOpacity ? 'opacity-95' : 'opacity-30'} ${shouldBeFullOpacity ? 'bg-gray-900/80' : 'bg-transparent'} rounded-lg`}>
         <div className="max-h-[200px] overflow-y-auto p-3 space-y-1">
           {notifications.map((notif) => (
             <div key={notif.id} className="animate-fade-in">
