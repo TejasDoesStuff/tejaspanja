@@ -93,6 +93,7 @@ function Model({
           position={[0, 0.31, 0.11]}
           rotation={[Math.PI, Math.PI, Math.PI]}
           scale={0.036}
+          zIndexRange={[0, 0]}
         >
           {renderPage}
         </Html>
@@ -413,6 +414,10 @@ function App() {
       
       case 'freddy_fazbear':
         addNotification('HAR HAR HAR HAR HAR HAR HAR HAR HAR HAR');
+        break;
+
+      case 'wut_da_helly':
+        addNotification('erm wat da sigma');
         break;
       
       case 'clear':

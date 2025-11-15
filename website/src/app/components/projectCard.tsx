@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
+import { FaTimes } from "react-icons/fa";
 
 interface ProjectCardProps {
   title: string;
@@ -144,39 +145,44 @@ export default function projectCard({
           className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4"
           onClick={handleOverlayClick}
         >
-          <div className="bg-white border-black border-2 max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col md:flex-row gap-4 p-4 rounded-tr-4xl rounded-tl-4xl">
-            <div className="relative flex-shrink-0 md:w-1/2 flex items-center justify-center">
-              <Image
-                src={images[currentImageIndex]}
-                alt={`${title} - Image ${currentImageIndex + 1}`}
-                width={400}
-                height={533}
-                className="w-full h-auto object-contain"
-                priority
-              />
+          <div className="bg-white border-black border-2 max-w-4xl max-h-[90vh] overflow-y-auto flex flex-col md:flex-row gap-4 p-4 rounded-tr-4xl rounded-tl-4xl relative">
+            
+            <div className="relative flex-shrink-0 md:w-1/2 flex flex-col items-center justify-center">
+              <div className="relative w-full">
+                <Image
+                  src={images[currentImageIndex]}
+                  alt={`${title} - Image ${currentImageIndex + 1}`}
+                  width={400}
+                  height={533}
+                  className="w-full h-auto object-contain"
+                  priority
+                />
+                {images.length > 1 && (
+                  <>
+                    <button
+                      onClick={prevImage}
+                      className="absolute left-0 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white px-3 py-4"
+                    >
+                      ←
+                    </button>
+                    <button
+                      onClick={nextImage}
+                      className="absolute right-0 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white px-3 py-4"
+                    >
+                      →
+                    </button>
+                  </>
+                )}
+              </div>
               {images.length > 1 && (
-                <>
-                  <button
-                    onClick={prevImage}
-                    className="absolute left-0 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white px-3 py-4"
-                  >
-                    ←
-                  </button>
-                  <button
-                    onClick={nextImage}
-                    className="absolute right-0 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white px-3 py-4"
-                  >
-                    →
-                  </button>
-                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs bg-black/50 text-white px-2 py-1 rounded">
-                    {currentImageIndex + 1}/{images.length}
-                  </div>
-                </>
+                <div className="mt-2 text-sm bg-black/50 text-white px-3 py-1 rounded">
+                  {currentImageIndex + 1}/{images.length}
+                </div>
               )}
             </div>
             <div className="md:w-1/2 flex flex-col">
               <div className="flex items-center justify-between mb-2">
-                <h2 className="font-bold text-lg">{title}</h2>
+                <h2 className="font-bold text-lg leading-none">{title}</h2>
               </div>
               <div className="flex items-center justify-between mb-3">
                 <p className="text-xs text-gray-600">{date} • {category}</p>
@@ -203,7 +209,18 @@ export default function projectCard({
                   )}
                 </div>
               </div>
-              <p className="leading-relaxed text-sm">{description}</p>
+              <p className="leading-tight text-sm">{description}</p>
+              <button
+                onClick={() => setExpanded(false)}
+                className="mt-4 flex items-center justify-center text-xs hover:underline cursor-pointer group border-2 border-black bg-blue-500 text-white px-3 py-1.5 rounded hover:shadow-[0_0_15px_rgba(59,130,246,0.6)] transition-all duration-300"
+              >
+                <img 
+                  src="/left-arrow.svg" 
+                  alt="←" 
+                  className="w-3 h-3 transition-transform duration-300 ease-in-out transform translate-x-0.5 opacity-0 group-hover:opacity-100 group-hover:-translate-x-0.5 brightness-0 invert" 
+                />
+                <span>close</span>
+              </button>
             </div>
           </div>
         </div>

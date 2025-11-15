@@ -25,8 +25,8 @@ function Projects({ setCurrentPage }: ProjectsProps) {
         </div>
         <BackButton setCurrentPage={setCurrentPage} page={'projects'}/>
       </div>
-      <div className="p-2 pt-1 overflow-auto h-full">
-        <p className="text-xs sm:text-sm">Coming soon...</p>
+      <div className="p-4 px-18 overflow-auto h-full">
+        <ProjectCard title={"Novel Therapeutic Application of ChatGPT Through Prompt Engineering"} description={<>A research project focused around making ChatGPT better at providing mental health help via the use of prompt engineering. My research paper was selected for publication. By Tejas Panja</>} date={"Sep 2024 - Jun 2025"} gh={""} category={"Research"} link={"https://youtu.be/6xSXdI9edBE"} pic={["/research/csrsef1.jpg", "/research/csrsef2.jpg", "/research/csrsef3.jpg", "/research/csrsef4.jpg", "/research/csrsef5.jpg", "/research/csrsef6.jpg"]}/>
       </div>
     </div>
   );
