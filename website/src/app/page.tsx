@@ -287,6 +287,7 @@ function NotificationChat({
 }
 // end terminal
 
+// intro effect
 function FlickeringLight() {
   const lightRef = useRef<THREE.PointLight>(null);
   const [intensity, setIntensity] = useState(0);
@@ -379,17 +380,22 @@ function ZoomEffect({ isActive }: { isActive: boolean }) {
   });
 
   const [opacity, setOpacity] = useState(0);
+  const opacityRef = useRef(0);
 
   useEffect(() => {
     if (isActive) {
-      setOpacity(1);
-    } else {
-      setOpacity(0);
+      opacityRef.current = 1;
     }
   }, [isActive]);
 
   useFrame((state, delta) => {
-    if (!linesRef.current || !isActive) return;
+    if (!linesRef.current) return;
+    
+    const targetOpacity = isActive ? 1 : 0;
+    opacityRef.current += (targetOpacity - opacityRef.current) * delta * 5;
+    setOpacity(opacityRef.current);
+    
+    if (opacityRef.current < 0.01) return;
     
     const positions = linesRef.current.geometry.attributes.position.array as Float32Array;
     
@@ -451,17 +457,18 @@ function CameraShake({ isActive, intensity = 0.35 }: { isActive: boolean; intens
   useEffect(() => {
     if (isActive) {
       originalPosition.current.copy(camera.position);
-      shakeIntensity.current = 0;
     }
   }, [isActive, camera]);
 
   useFrame((state, delta) => {
-    if (!isActive) {
-      shakeIntensity.current = 0;
-      return;
+    if (isActive) {
+      shakeIntensity.current = Math.min(shakeIntensity.current + delta * 3, 1);
+    } else {
+      shakeIntensity.current = Math.max(shakeIntensity.current - delta * 2, 0);
     }
 
-    shakeIntensity.current = Math.min(shakeIntensity.current + delta * 3, 1);
+    if (shakeIntensity.current === 0) return;
+
     const currentIntensity = intensity * shakeIntensity.current;
 
     const shake = {
@@ -481,18 +488,15 @@ function CameraShake({ isActive, intensity = 0.35 }: { isActive: boolean; intens
 function Hyperspace({ isActive }: { isActive: boolean }) {
   const lightRef = useRef<THREE.PointLight>(null);
   const [intensity, setIntensity] = useState(0);
+  const intensityRef = useRef(0);
 
-  useFrame((state) => {
-    if (!isActive) {
-      setIntensity(0);
-      return;
-    }
-    
+  useFrame((state, delta) => {
     const pulse = Math.sin(state.clock.elapsedTime * 20) * 0.5 + 0.5;
-    setIntensity(pulse * 150);
+    const targetIntensity = isActive ? pulse * 150 : 0;
+    
+    intensityRef.current += (targetIntensity - intensityRef.current) * delta * 5;
+    setIntensity(intensityRef.current);
   });
-
-  if (!isActive) return null;
 
   return (
     <pointLight

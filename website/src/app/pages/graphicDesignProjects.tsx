@@ -26,7 +26,7 @@ function Projects({ setCurrentPage }: { setCurrentPage: (page: string) => void }
           <ProjectCard title={"moyai"} description={"i dont really know what I was doing"} date={"Jun 2025"} gh={""} category={"Poster"} link={""} pic={"/gd/moyai.png"}/>
           <ProjectCard title={"moo"} description={"i like cows"} date={"Jun 2025"} gh={""} category={"Poster"} link={""} pic={"/gd/moo.png"}/>
           <ProjectCard title={"Bloom"} description={""} date={"Apr 2025"} gh={""} category={"Poster"} link={""} pic={"/gd/bloom.png"}/>
-          <ProjectCard title={"Call me?"} description={"please?"} date={"Apr 2025"} gh={""} category={"Poster"} link={""} pic={"/gd/callme.png"}/>
+          <ProjectCard title={"Call me?"} description={"please?"} date={"Apr 2025"} gh={""} category={"Poster"} link={""} pic={"/gd/Callme.png"}/>
           <ProjectCard title={"Electric Dreams"} description={"INDUSTRIAL ELECTRIC CO., INC"} date={"Apr 2025"} gh={""} category={"Poster"} link={""} pic={"/gd/electricdreams.png"}/>
           <ProjectCard title={"Flower Language"} description={"what language do the flowers speak?"} date={"Apr 2025"} gh={""} category={"Poster"} link={""} pic={"/gd/flowerlanguage.png"}/>
           <ProjectCard title={"peace"} description={"The greatest weapon against stress"} date={"Apr 2025"} gh={""} category={"Poster"} link={""} pic={"/gd/peace.png"}/>
