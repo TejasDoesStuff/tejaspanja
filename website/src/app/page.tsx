@@ -43,23 +43,11 @@ function Model({
   const { scale } = useSpring({
     scale: isZoomed ? 2.5 : 1,
     config: {
-      mass: 1,
-      tension: 180,
-      friction: 30,
+      mass: 1.2,
+      tension: 150,
+      friction: 26,
     },
   });
-
-  interface HandleClickEvent extends React.MouseEvent<THREE.Group, MouseEvent> {
-    nativeEvent: MouseEvent & { preventDefault: () => void };
-  }
-
-  const handleClick = (e: HandleClickEvent): void => {
-    e.stopPropagation();
-    e.nativeEvent.preventDefault();
-    if (!isZoomed) {
-      setIsZoomed(true);
-    }
-  };
 
   // the different pages of the website
   const renderPage = useMemo(() => {
@@ -85,7 +73,18 @@ function Model({
   }, [currentPage, setCurrentPage]);
 
   return (
-    <animated.group ref={group} onClick={handleClick} scale={scale}>
+    <animated.group ref={group} scale={scale}>
+      {useMemo(() => {
+        scene.traverse((child: any) => {
+          if (child.isMesh) {
+            child.material = new THREE.MeshStandardMaterial({
+              map: child.material.map || null,
+              color: "white",
+            });
+          }
+        });
+        return null;
+      }, [scene])}
       <primitive object={scene} />
       {isZoomed && (
         <Html
@@ -107,12 +106,16 @@ function ParallaxEffect({ children, isZoomed }: { children: React.ReactNode; isZ
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
 
   const { cameraPosition, lookAtY } = useSpring({
-    cameraPosition: isZoomed ? [0, .55, 1.6] : [0, 0, 1],
+    cameraPosition: isZoomed ? [0, .55, 1.6] : [0, 0, 3],
     lookAtY: isZoomed ? 0.47 : 0,
-    config: {
-      mass: 1,
-      tension: 180,
-      friction: 30,
+    config: isZoomed ? {
+      mass: 1.2,
+      tension: 150,
+      friction: 26,
+    } : {
+      mass: 2,
+      tension: 80,
+      friction: 40,
     },
   });
 
@@ -137,7 +140,8 @@ function ParallaxEffect({ children, isZoomed }: { children: React.ReactNode; isZ
   useFrame(() => {
     const [x, y, z] = cameraPosition.get();
     const targetY = lookAtY.get();
-    const parallaxStrength = isZoomed ? 0.005 : 0.03;
+    const parallaxStrength = isZoomed ? 0.005 : 0.08;
+    
     camera.position.set(
       x + mousePosition.x * parallaxStrength,
       y + mousePosition.y * parallaxStrength,
@@ -283,13 +287,228 @@ function NotificationChat({
 }
 // end terminal
 
+function FlickeringLight() {
+  const lightRef = useRef<THREE.PointLight>(null);
+  const [intensity, setIntensity] = useState(0);
+  const [color, setColor] = useState("#000000");
+
+  useEffect(() => {
+    let timeouts: NodeJS.Timeout[] = [];
+
+    const flickerPattern = [
+      { t: 0,   value: 0.0,  color: "#000000" },
+      { t: 600, value: 0.15, color: "#cccccc" },
+      { t: 80,  value: 0.0,  color: "#000000" },
+      { t: 160, value: 0.6,  color: "#dddddd" },
+      { t: 90,  value: 0.1,  color: "#666666" },
+      { t: 200, value: 1.2,  color: "#eeeeee" },
+      { t: 110, value: 0.4,  color: "#bbbbbb" },
+      { t: 150, value: 2.5,  color: "#ffffff" },
+      { t: 80,  value: 0.8,  color: "#eeeeee" },
+      { t: 200, value: 3.5,  color: "#eeddee" },
+    ];
+
+    let total = 0;
+    flickerPattern.forEach((step) => {
+      const timeout = setTimeout(() => {
+        setIntensity(step.value);
+        setColor(step.color);
+        if (lightRef.current) lightRef.current.color.set(step.color);
+      }, total + step.t);
+
+      total += step.t;
+      timeouts.push(timeout);
+    });
+
+    return () => timeouts.forEach(clearTimeout);
+  }, []);
+
+  return (
+    <>
+      <pointLight
+        ref={lightRef}
+        position={[0, 2.5, 1]}
+        intensity={intensity * 80}
+        distance={8}
+        decay={2}
+        color={color}
+      />
+
+      <mesh position={[0, 2.5, 1]}>
+        <planeGeometry args={[0.4, 0.4]} />
+        <meshBasicMaterial
+          color={color}
+          transparent
+          opacity={Math.min(intensity * 0.8, 1)}
+        />
+      </mesh>
+
+      <ambientLight intensity={0.02 + intensity * 0.08} />
+    </>
+  );
+}
+
+function ZoomEffect({ isActive }: { isActive: boolean }) {
+  const linesRef = useRef<THREE.LineSegments>(null);
+  const [particles] = useState(() => {
+    const count = 500;
+    const positions = new Float32Array(count * 6);
+    const velocities = new Float32Array(count);
+    
+    for (let i = 0; i < count; i++) {
+      const i6 = i * 6;
+      const theta = Math.random() * Math.PI * 2;
+      const radius = Math.random() * 5 + 1;
+      
+      const x = Math.cos(theta) * radius;
+      const y = (Math.random() - 0.5) * 10;
+      const z = Math.sin(theta) * radius - 10;
+      
+      positions[i6] = x;
+      positions[i6 + 1] = y;
+      positions[i6 + 2] = z;
+      
+      positions[i6 + 3] = x;
+      positions[i6 + 4] = y;
+      positions[i6 + 5] = z;
+      
+      velocities[i] = Math.random() * 1.5 + 1.5;
+    }
+    
+    return { positions, velocities };
+  });
+
+  const [opacity, setOpacity] = useState(0);
+
+  useEffect(() => {
+    if (isActive) {
+      setOpacity(1);
+    } else {
+      setOpacity(0);
+    }
+  }, [isActive]);
+
+  useFrame((state, delta) => {
+    if (!linesRef.current || !isActive) return;
+    
+    const positions = linesRef.current.geometry.attributes.position.array as Float32Array;
+    
+    for (let i = 0; i < positions.length / 6; i++) {
+      const i6 = i * 6;
+      const speed = particles.velocities[i] * delta * 120;
+      
+      positions[i6 + 2] += speed;
+      positions[i6 + 5] += speed;
+      
+      const streakLength = Math.min(speed * 0.8, 2);
+      positions[i6 + 5] = positions[i6 + 2] - streakLength;
+      
+      if (positions[i6 + 2] > 5) {
+        const theta = Math.random() * Math.PI * 2;
+        const radius = Math.random() * 5 + 1;
+        const x = Math.cos(theta) * radius;
+        const y = (Math.random() - 0.5) * 10;
+        
+        positions[i6] = x;
+        positions[i6 + 1] = y;
+        positions[i6 + 2] = -10;
+        positions[i6 + 3] = x;
+        positions[i6 + 4] = y;
+        positions[i6 + 5] = -10;
+      }
+    }
+    
+    linesRef.current.geometry.attributes.position.needsUpdate = true;
+  });
+
+  return (
+    <lineSegments ref={linesRef}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          args={[particles.positions, 3]}
+          count={particles.positions.length / 3}
+          array={particles.positions}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <lineBasicMaterial
+        color="#ffffff"
+        transparent
+        opacity={opacity * 0.9}
+        blending={THREE.AdditiveBlending}
+        linewidth={2}
+      />
+    </lineSegments>
+  );
+}
+
+function CameraShake({ isActive, intensity = 0.35 }: { isActive: boolean; intensity?: number }) {
+  const { camera } = useThree();
+  const originalPosition = useRef(new THREE.Vector3());
+  const shakeIntensity = useRef(0);
+
+  useEffect(() => {
+    if (isActive) {
+      originalPosition.current.copy(camera.position);
+      shakeIntensity.current = 0;
+    }
+  }, [isActive, camera]);
+
+  useFrame((state, delta) => {
+    if (!isActive) {
+      shakeIntensity.current = 0;
+      return;
+    }
+
+    shakeIntensity.current = Math.min(shakeIntensity.current + delta * 3, 1);
+    const currentIntensity = intensity * shakeIntensity.current;
+
+    const shake = {
+      x: (Math.random() - 0.5) * currentIntensity,
+      y: (Math.random() - 0.5) * currentIntensity,
+      z: (Math.random() - 0.5) * currentIntensity * 0.5,
+    };
+
+    camera.position.x = originalPosition.current.x + shake.x;
+    camera.position.y = originalPosition.current.y + shake.y;
+    camera.position.z = originalPosition.current.z + shake.z;
+  });
+
+  return null;
+}
+
+function Hyperspace({ isActive }: { isActive: boolean }) {
+  const lightRef = useRef<THREE.PointLight>(null);
+  const [intensity, setIntensity] = useState(0);
+
+  useFrame((state) => {
+    if (!isActive) {
+      setIntensity(0);
+      return;
+    }
+    
+    const pulse = Math.sin(state.clock.elapsedTime * 20) * 0.5 + 0.5;
+    setIntensity(pulse * 150);
+  });
+
+  if (!isActive) return null;
+
+  return (
+    <pointLight
+      ref={lightRef}
+      position={[0, 0, 2]}
+      intensity={intensity}
+      distance={15}
+      color="#6699ff"
+    />
+  );
+}
+
 function App() {
   const [isZoomed, setIsZoomed] = useState(false);
   const [currentPage, setCurrentPage] = useState('home');
-  const [scanlinesEnabled, setScanlinesEnabled] = useState(true);
-  const [showPerformanceTip, setShowPerformanceTip] = useState(true);
-  const [isFadingOut, setIsFadingOut] = useState(false);
-  const [autoOptimized, setAutoOptimized] = useState(false);
+  const [hyperspaceActive, setHyperspaceActive] = useState(false);
   const [effects, setEffects] = useState({
     scanlines: true,
     scanlinesOverlay: true,
@@ -305,60 +524,6 @@ function App() {
     setEffects(prev => ({ ...prev, [effect]: !prev[effect] }));
   };
 
-  useEffect(() => {
-    const style = document.createElement("style");
-    style.textContent = `
-      .folder-item {
-        position: relative;
-      }
-      .folder-label {
-        opacity: 0;
-        transform: translateY(-5px);
-        transition: opacity 0.2s ease-in-out, transform 0.3s ease-out;
-        position: absolute;
-        bottom: -15px;
-      }
-      .folder-item:hover .folder-label {
-        opacity: 1;
-        transform: translateY(0);
-      }
-      @media (max-width: 640px) {
-        .folder-label {
-          opacity: 1 !important;
-          transform: translateY(0) !important;
-          position: static;
-        }
-      }
-      .effects-panel {
-        max-height: 0;
-        overflow: hidden;
-        transition: max-height 0.3s ease-in-out;
-      }
-      .effects-panel-container:hover .effects-panel {
-        max-height: 400px;
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateX(-20px);
-        }
-        to {
-          opacity: 1;
-          transform: translateX(0);
-        }
-      }
-      .animate-fade-in {
-        animation: fadeIn 0.3s ease-out;
-      }
-    `;
-    document.head.appendChild(style);
-
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
-
-// commands/notifications
   const addNotification = (message: string, type: 'system' | 'command' | 'error' = 'system') => {
     const id = notificationId.current++;
     setNotifications(prev => [...prev, { id, message, timestamp: Date.now(), type }]);
@@ -450,8 +615,29 @@ function App() {
     addNotification("Some effects disabled for better performance :(");
   };
 
+  useEffect(() => {
+    const slowZoomTimer = setTimeout(() => {
+      setIsZoomed(false);
+    }, 0);
+
+    const intenseZoomTimer = setTimeout(() => {
+      setHyperspaceActive(true);
+      setIsZoomed(true);
+    }, 3000);
+
+    const endHyperspaceTimer = setTimeout(() => {
+      setHyperspaceActive(false);
+    }, 3600);
+
+    return () => {
+      clearTimeout(slowZoomTimer);
+      clearTimeout(intenseZoomTimer);
+      clearTimeout(endHyperspaceTimer);
+    };
+  }, []);
+
   return (
-    <div className="App w-full h-screen relative">
+    <div className="w-full h-screen relative">
       {effects.scanlinesOverlay && (
         <div
           className="scanline-overlay absolute inset-0 pointer-events-none z-10 opacity-80"
@@ -468,14 +654,10 @@ function App() {
       <Canvas
         className="canvas1"
         dpr={[1, 2]}
-        camera={{ fov: 45, position: [0, 0, 1] }}
-        onPointerMissed={(e) => {
-          if (isZoomed && !e.defaultPrevented) {
-            setIsZoomed(false);
-          }
-        }}
+        camera={{ fov: 45, position: [0, 0, 5] }}
       >
         <color attach="background" args={["#101010"]} />
+        <FlickeringLight />
         <PerformanceMonitor onLowPerformance={handleLowPerformance} />
         <EffectComposer>
           {effects.noise ? <Noise opacity={0.02}/> : <></>}
@@ -485,7 +667,11 @@ function App() {
           {effects.vignette ? <Vignette offset={0.5} darkness={0.3} eskil={false} /> : <></>}
           {effects.bloom ? <Bloom intensity={0.1} luminanceThreshold={0.2} /> : <></>}
           <ParallaxEffect isZoomed={isZoomed}>
-            <Stage environment={null}>
+            <ZoomEffect isActive={hyperspaceActive} />
+            <Hyperspace isActive={hyperspaceActive} />
+            <CameraShake isActive={hyperspaceActive} intensity={0.5} />
+            {/* <pointLight position={[0, 2, 1]} intensity={100} color="red" /> */}
+            <Stage environment={null} intensity={0} shadows={false}>
               <Model 
                 isZoomed={isZoomed} 
                 setIsZoomed={setIsZoomed}
@@ -496,11 +682,6 @@ function App() {
           </ParallaxEffect>
         </EffectComposer>
       </Canvas>
-      {!isZoomed && (
-        <div className="absolute bottom-10 left-0 right-0 text-center text-white opacity-70">
-          Click on the TV!
-        </div>
-      )}
     </div>
   );
 }

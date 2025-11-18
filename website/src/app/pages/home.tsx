@@ -1,5 +1,5 @@
 import Image from "next/image"
-import { memo, useCallback, useState } from "react"
+import { memo, useCallback, useState, useRef } from "react"
 
 interface HomeProps {
   setCurrentPage: (page: string) => void;
@@ -29,7 +29,7 @@ const folderData: FolderData[] = [
       { name: 'Code', count: 14, gradient: 'from-blue-500/10 to-purple-500/10', action: 'navigate' },
       { name: 'Music', gradient: 'from-pink-500/10 to-red-500/10', action: 'navigate' },
       { name: 'Graphic Design', count: 12, gradient: 'from-green-500/10 to-teal-500/10', action: 'navigate' },
-      { name: 'Research', gradient: 'from-orange-500/10 to-yellow-500/10', action: 'navigate' },
+      { name: 'Research', count: 1, gradient: 'from-orange-500/10 to-yellow-500/10', action: 'navigate' },
     ]
   },
   {
@@ -56,6 +56,7 @@ const folderData: FolderData[] = [
 function Home({ setCurrentPage }: HomeProps) {
   const [hoveredFolder, setHoveredFolder] = useState<string | null>(null);
   const [selectedContentIndex, setSelectedContentIndex] = useState<number>(0);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const handlePageChange = useCallback((page: string) => {
     setCurrentPage(page);
@@ -84,6 +85,15 @@ function Home({ setCurrentPage }: HomeProps) {
     }
   }, [hoveredFolder, handlePageChange]);
 
+  const handleContentHover = useCallback((index: number) => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+    }
+    hoverTimeoutRef.current = setTimeout(() => {
+      setSelectedContentIndex(index);
+    }, 300);
+  }, []);
+
   return (
     <div
       onClick={(e) => e.stopPropagation()}
@@ -108,6 +118,9 @@ function Home({ setCurrentPage }: HomeProps) {
               if (folder.hasCarousel) {
                 setHoveredFolder(null);
                 setSelectedContentIndex(0);
+                if (hoverTimeoutRef.current) {
+                  clearTimeout(hoverTimeoutRef.current);
+                }
               }
             }}
           >
@@ -118,11 +131,11 @@ function Home({ setCurrentPage }: HomeProps) {
               onClick={() => handleFolderClick(folder)}
             >
               <Image src="/folder.svg" width={64} height={64} alt={folder.label} priority unoptimized />
-              <span className={`folder-label text-xs sm:text-sm ${hoveredFolder === folder.id ? '!opacity-100 !transform-none' : ''}`}>{folder.label}</span>
+              <span className="folder-label text-xs sm:text-sm">{folder.label}</span>
             </div>
 
             {folder.hasCarousel && folder.contents && (
-              <div className={`absolute top-full mt-2 flex flex-col items-center justify-center transition-all duration-300 ${
+              <div className={`absolute top-full mt-1 flex flex-col items-center justify-center transition-all duration-300 ${
                 hoveredFolder === folder.id ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none'
               }`} style={{ width: '300px', height: '100px' }}>
                 <div className="relative w-full h-full flex items-center justify-center overflow-visible">
@@ -146,11 +159,11 @@ function Home({ setCurrentPage }: HomeProps) {
                           width: '60px',
                           height: '60px',
                         }}
-                        onMouseEnter={() => setSelectedContentIndex(index)}
+                        onMouseEnter={() => handleContentHover(index)}
                         onClick={() => handleContentClick(folder.id, content)}
                       >
                         {content.count && (
-                          <div className="absolute -top-1 -right-1 bg-black text-white text-xs px-1.5 py-0.5 rounded-full font-bold z-10">
+                          <div className="absolute -top-1.5 -right-1.5 bg-black text-white text-xs rounded-full font-bold z-10 w-5 h-5 flex items-center justify-center">
                             {content.count}
                           </div>
                         )}
